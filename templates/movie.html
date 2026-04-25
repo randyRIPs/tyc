@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>電影查詢</title>
+</head>
+<body>
+    <h2>電影查詢</h2>
+
+    <form method="POST" action="/movie">
+        <input type="text" name="keyword" placeholder="輸入電影名稱" required>
+        <button type="submit">查詢</button>
+    </form>
+
+    {% if result %}
+        <ul>
+        {% for movie in result %}
+            <li>
+                {% if movie.picture %}
+                    <img src="{{ movie.picture }}" alt="{{ movie.title }}" width="120"><br>
+                {% endif %}
+
+                <strong>{{ movie.title }}</strong><br>
+                上映日期：{{ movie.date }}<br>
+
+                {% if movie.length %}
+                    片長：{{ movie.length }} 分鐘<br>
+                {% endif %}
+
+                {% if movie.rate %}
+                    分級：{{ movie.rate }}<br>
+                {% endif %}
+
+                <a href="{{ movie.url }}" target="_blank">查看</a>
+            </li>
+            <br>
+        {% endfor %}
+        </ul>
+    {% elif request.method == 'POST' %}
+        <p>查無資料</p>
+    {% endif %}
+</body>
+</html>
