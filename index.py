@@ -7,6 +7,7 @@ from spider import get_movies
 import os
 import json
 from opendata import get_roads
+from weather import get_weather
 
 app = Flask(__name__)
 
@@ -30,6 +31,7 @@ def init_firebase():
 db = init_firebase()
 
 
+
 @app.route("/")
 def home():
     return """
@@ -42,6 +44,9 @@ def home():
     <body>
         <h2>羅翊綸的網頁</h2>
 
+        <a href="/weather">
+            <button>台灣天氣查詢</button>
+        </a>
         
         <br><br>
 
@@ -62,6 +67,17 @@ def home():
     </html>
     """
 
+@app.route("/weather", methods=["GET", "POST"])
+def weather():
+    result = None
+
+    if request.method == "POST":
+        city = request.form.get("city", "").strip()
+
+        if city:
+            result = get_weather(city)
+
+    return render_template("weather.html", result=result)
 
 @app.route("/roadsearch")
 def roadsearch():
