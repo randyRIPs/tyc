@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>天氣查詢</title>
+</head>
+<body>
+
+    <h1>天氣查詢</h1>
+
+    <form method="POST">
+        <input type="text" name="city" placeholder="輸入縣市，例如：臺中市" required>
+        <button type="submit">查詢</button>
+    </form>
+
+    <hr>
+
+   {% if result %}
+
+        {% if result.error %}
+
+            <p>查詢失敗：{{ result.error }}</p>
+
+        {% else %}
+
+            <h2>{{ result.city }} 未來36小時天氣</h2>
+
+            {% for item in result.data %}
+
+                <hr>
+
+                <p>開始時間：{{ item.start }}</p>
+
+                <p>結束時間：{{ item.end }}</p>
+
+                <p>天氣：{{ item.weather }}</p>
+
+                <p>降雨機率：{{ item.rain }}%</p>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endif %}
+
+    <br>
+    <a href="/">回首頁</a>
+
+</body>
+</html>
