@@ -2,23 +2,30 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>路口查詢</title>
+    <title>台中易肇事路口查詢</title>
 </head>
 <body>
-    <h2>台中市易肇事路段查詢</h2>
-    <form method="POST">
-        <input type="text" name="keyword" placeholder="輸入路口關鍵字" required>
-        <button type="submit">查詢</button>
-    </form>
+
+    <h1>台中易肇事路口資料</h1>
+
+    <a href="/">
+        <button>回首頁</button>
+    </a>
+
+    <hr>
 
     {% if result %}
-        <ul>
         {% for item in result %}
-            <li>{{ item["路口"] }} — {{ item["發生次數"] }} 次</li>
+            <div>
+                <h3>{{ item.road }}</h3>
+                <p>事故件數：{{ item.count }}</p>
+                <p>主要肇因：{{ item.reason }}</p>
+            </div>
+            <hr>
         {% endfor %}
-        </ul>
-    {% elif request.method == 'POST' %}
-        <p>查無資料</p>
+    {% else %}
+        <p>目前沒有資料</p>
     {% endif %}
+
 </body>
 </html>

@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from spider import get_movies
 import os
 import json
+from opendata import get_roads
 
 app = Flask(__name__)
 
@@ -44,6 +45,11 @@ def home():
         
         <br><br>
 
+        <a href="/roadsearch">
+            <button>台中易肇事路口查詢</button>
+        </a>
+
+        <br><br>
         <a href="/movie">
             <button>電影查詢</button>
         </a>
@@ -57,24 +63,9 @@ def home():
     """
 
 
-@app.route("/roadsearch", methods=["GET", "POST"])
+@app.route("/roadsearch")
 def roadsearch():
-    result = []
-
-    if request.method == "POST":
-        keyword = request.form.get("keyword", "").strip()
-
-        if keyword:
-            docs = (
-                db.collection("taichung")
-                .where("路口", ">=", keyword)
-                .where("路口", "<=", keyword + "\uf8ff")
-                .stream()
-            )
-
-            for doc in docs:
-                result.append(doc.to_dict())
-
+    result = get_roads()
     return render_template("roadsearch.html", result=result)
 
 
