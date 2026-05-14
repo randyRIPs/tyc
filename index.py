@@ -134,46 +134,41 @@ def rate():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
+
     req = request.get_json(force=True)
 
-    query_result = req.get("queryResult", {})
-    action = query_result.get("action", "")
-    msg = query_result.get("queryText", "")
-    parameters = query_result.get("parameters", {})
+    action = req.get("queryResult").get("action")
 
-    rate_value = parameters.get("rate", "")
+    info = "查詢失敗"
 
     if action == "rateChoice":
-        if not rate_value:
-            return make_response(jsonify({
-                "fulfillmentText": "請告訴我你想查哪一種電影分級，例如：普遍級、保護級、輔12級、輔15級、限制級。"
-            }))
 
-        movies = []
+        rate = req.get("queryResult").get("parameters").get("rate")
 
-        docs = db.collection("電影含分級").limit(5).stream()
+        info = "我是羅翊綸開發的電影聊天機器人，您選擇的電影分級是：" + rate + "\n\n相關電影：\n\n"
+
+        db = firestore.client()
+
+        collection_ref = db.collection("電影含分級")
+
+        docs = collection_ref.get()
+
+        result = ""
 
         for doc in docs:
+
             data = doc.to_dict()
-            title = data.get("title", "")
-            show_date = data.get("showDate", "")
-            movie_rate = data.get("rate", "")
 
-            if title:
-                movies.append(f"{title}｜上映日期：{show_date}｜分級：{movie_rate}")
+            if "rate" in data and rate in data["rate"]:
 
-        if not movies:
-            return make_response(jsonify({
-                "fulfillmentText": f"目前找不到{rate_value}的電影資料，請先到網站按「爬取並存入電影資料」更新資料。"
-            }))
+                result += "片名：" + data["title"] + "\n"
 
-        text = f"找到以下{rate_value}電影：\n" + "\n".join(movies[:5])
+                result += "電影網址：" + data["hyperlink"] + "\n\n"
 
-        return make_response(jsonify({
-            "fulfillmentText": text
-        }))
+        if result == "":
+            result = "目前查無相關電影"
 
-    info = "我是翊綸設計的機器人，動作：" + action + "； 查詢內容：" + msg
+        info += result
 
     return make_response(jsonify({
         "fulfillmentText": info
