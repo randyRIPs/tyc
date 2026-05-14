@@ -229,7 +229,7 @@ def webhook():
 
         movies = []
 
-        docs = db.collection("電影含分級").where("rate", "==", rate_value).stream()
+        docs = db.collection("電影含分級").limit(5).stream()
 
         for doc in docs:
             data = doc.to_dict()
