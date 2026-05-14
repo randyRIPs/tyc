@@ -251,7 +251,7 @@ def webhook():
             "fulfillmentText": text
         }))
 
-    info = "動作：" + action + "； 查詢內容：" + msg
+    info = "我是翊綸設計的機器人，動作：" + action + "； 查詢內容：" + msg
 
     return make_response(jsonify({
         "fulfillmentText": info
