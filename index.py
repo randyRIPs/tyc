@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response, jsonify
 import firebase_admin
 from firebase_admin import credentials, firestore
 import requests
@@ -29,7 +29,6 @@ def init_firebase():
 
 
 db = init_firebase()
-
 
 
 @app.route("/")
@@ -67,6 +66,7 @@ def home():
     </html>
     """
 
+
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
     result = None
@@ -78,6 +78,7 @@ def weather():
             result = get_weather(city)
 
     return render_template("weather.html", result=result)
+
 
 @app.route("/roadsearch")
 def roadsearch():
@@ -157,6 +158,7 @@ def rate():
             picture = "https:" + picture
         elif picture.startswith("/"):
             picture = "http://www.atmovies.com.tw" + picture
+
         title = img.get("alt", "").strip()
 
         link_tag = title_block.find("a")
@@ -206,6 +208,54 @@ def rate():
             db.collection("電影含分級").document(movie_id).set(movie_data)
 
     return "近期上映電影已爬蟲及存檔完畢，網站最近更新日期為：" + last_update
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    req = request.get_json(force=True)
+
+    query_result = req.get("queryResult", {})
+    action = query_result.get("action", "")
+    msg = query_result.get("queryText", "")
+    parameters = query_result.get("parameters", {})
+
+    rate_value = parameters.get("rate", "")
+
+    if action == "rateChoice":
+        if not rate_value:
+            return make_response(jsonify({
+                "fulfillmentText": "請告訴我你想查哪一種電影分級，例如：普遍級、保護級、輔12級、輔15級、限制級。"
+            }))
+
+        movies = []
+
+        docs = db.collection("電影含分級").where("rate", "==", rate_value).stream()
+
+        for doc in docs:
+            data = doc.to_dict()
+            title = data.get("title", "")
+            show_date = data.get("showDate", "")
+            movie_rate = data.get("rate", "")
+
+            if title:
+                movies.append(f"{title}｜上映日期：{show_date}｜分級：{movie_rate}")
+
+        if not movies:
+            return make_response(jsonify({
+                "fulfillmentText": f"目前找不到{rate_value}的電影資料，請先到網站按「爬取並存入電影資料」更新資料。"
+            }))
+
+        text = f"找到以下{rate_value}電影：\n" + "\n".join(movies[:5])
+
+        return make_response(jsonify({
+            "fulfillmentText": text
+        }))
+
+    info = "動作：" + action + "； 查詢內容：" + msg
+
+    return make_response(jsonify({
+        "fulfillmentText": info
+    }))
 
 
 if __name__ == "__main__":
