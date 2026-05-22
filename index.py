@@ -169,6 +169,12 @@ def webhook():
             result = "目前查無相關電影"
 
         info += result
+    
+    elif (action == "MovieDetail"):
+        question =  req.get("queryResult").get("parameters").get("Filmq")
+        keyword =  req.get("queryResult").get("parameters").get("any")
+        info = "我是楊子青開發的電影聊天機器人，您要查詢電影的" + question + "，關鍵字是：" + keyword + "\n\n"
+
 
     return make_response(jsonify({
         "fulfillmentText": info
