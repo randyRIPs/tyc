@@ -63,6 +63,13 @@ def home():
         <a href="/rate">
             <button>爬取並存入電影資料</button>
         </a>
+
+        <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+        <df-messenger
+            chat-title="home"
+            agent-id="9c31906e-73fa-41b1-a3c0-493ea75e5ff5"
+            language-code="zh-tw">
+        </df-messenger>
     </body>
     </html>
     """
