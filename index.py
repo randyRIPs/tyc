@@ -170,10 +170,51 @@ def webhook():
 
         info += result
     
-    elif (action == "MovieDetail"):
-        question =  req.get("queryResult").get("parameters").get("FilmQ")
-        keyword =  req.get("queryResult").get("parameters").get("any")
-        info = "我是楊子青開發的電影聊天機器人，您要查詢電影的" + question + "，關鍵字是：" + keyword + "\n\n"
+    elif action == "MovieDetail":
+
+        question = req.get("queryResult").get("parameters").get("FilmQ", "")
+        keyword = req.get("queryResult").get("parameters").get("any", "")
+
+        info = "我是羅翊綸開發的電影聊天機器人，您要查詢電影的" + question + "，關鍵字是：" + keyword + "\n\n"
+
+        db = firestore.client()
+        collection_ref = db.collection("電影含分級")
+        docs = collection_ref.get()
+
+        found = False
+
+        for doc in docs:
+
+            data = doc.to_dict()
+            title = data.get("title", "")
+
+            if keyword in title:
+
+                found = True
+
+                if question == "片名":
+
+                    info += "片名：" + data.get("title", "未知") + "\n"
+                    info += "海報：" + data.get("picture", "無") + "\n"
+                    info += "影片介紹：" + data.get("hyperlink", "無") + "\n"
+                    info += "片長：" + data.get("showLength", "未知") + " 分鐘\n"
+                    info += "分級：" + data.get("rate", "未知") + "\n"
+                    info += "上映日期：" + data.get("showDate", "未知") + "\n\n"
+
+                elif question == "片長":
+
+                    info += "片名：" + data.get("title", "未知") + "\n"
+                    info += "片長：" + data.get("showLength", "未知") + " 分鐘\n\n"
+
+                else:
+
+                    info += "片名：" + data.get("title", "未知") + "\n"
+                    info += "片長：" + data.get("showLength", "未知") + " 分鐘\n"
+                    info += "分級：" + data.get("rate", "未知") + "\n"
+                    info += "上映日期：" + data.get("showDate", "未知") + "\n\n"
+
+        if not found:
+            info += "很抱歉，目前無符合這個關鍵字的相關電影喔"
 
 
     return make_response(jsonify({
