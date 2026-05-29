@@ -217,7 +217,7 @@ def webhook():
         instruction_text = (
             "你是一個熱心且知識豐富的專業智慧助理。"
             "請使用繁體中文回答。"
-            "回答要簡潔、清楚，抓重點，不要重述使用者問題。"
+            "回答限制在100字內，分成2到3點，不要重述使用者問題。"
         )
 
         ai_config = types.GenerateContentConfig(
@@ -241,7 +241,7 @@ def webhook():
             info = "Gemini 回應發生錯誤：" + str(e)
 
     return make_response(jsonify({
-        "fulfillmentText": info
+         "fulfillmentText": "我是羅翊綸開發的AI聊天機器人。\n\n" + info
     }))
 
 
