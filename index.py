@@ -238,7 +238,8 @@ def webhook():
                 info = "抱歉，我現在無法生成回應，請稍後再試。"
 
         except Exception as e:
-            info = "Gemini 回應發生錯誤：" + str(e)
+            info = str(e)
+            print("Gemini錯誤:", e)
 
     return make_response(jsonify({
          "fulfillmentText": "我是羅翊綸開發的AI聊天機器人。\n\n" + info
